@@ -10,7 +10,7 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" href="/icons/appicon.png" type="image/png">
     <link rel="apple-touch-icon" href="/icons/appicon.png">
-    <link rel="stylesheet" href="/styles.css?v=3">
+    <link rel="stylesheet" href="/styles.css?v=4">
     <title>Daily Care</title>
   </head>
   <body>
@@ -22,9 +22,9 @@
         <div class="brand-copy">
           <p class="eyebrow">DAILY CARE</p>
           <div class="category-bar" id="category-bar" tabindex="0" aria-label="Switch routine category">
-            <button class="category-arrow" id="previous-category-button" type="button" aria-label="Show previous category"><span aria-hidden="true">&larr;</span></button>
+            <button class="category-arrow" id="previous-category-button" type="button" aria-label="Show previous category"><span class="category-arrow-icon category-arrow-icon-previous" aria-hidden="true"></span></button>
             <h1 id="category-title">Loading...</h1>
-            <button class="category-arrow" id="next-category-button" type="button" aria-label="Show next category"><span aria-hidden="true">&rarr;</span></button>
+            <button class="category-arrow" id="next-category-button" type="button" aria-label="Show next category"><span class="category-arrow-icon category-arrow-icon-next" aria-hidden="true"></span></button>
           </div>
           <p class="category-position" id="category-position">Swipe to switch routines</p>
         </div>
@@ -74,70 +74,82 @@
         <span class="encouragement-line" aria-hidden="true"></span>
       </section>
 
-      <section class="settings-panel">
-        <button class="settings-toggle" id="settings-toggle" type="button" aria-expanded="false" aria-controls="settings-content">
-          <span class="settings-symbol" aria-hidden="true">+</span>
-          <span><strong>Reminders &amp; install</strong><small>Push alerts and app setup</small></span>
-          <span class="chevron" aria-hidden="true"></span>
-        </button>
-        <div class="settings-content" id="settings-content" hidden>
-          <div class="settings-block">
-            <div class="settings-title-row">
-              <div>
-                <p class="eyebrow">NEVER MISS A STEP</p>
-                <h3>Push reminders</h3>
+      <section class="setup-tools" id="setup-tools">
+        <div class="setup-tools-content" id="setup-tools-content">
+          <section class="settings-panel">
+            <button class="settings-toggle" id="settings-toggle" type="button" aria-expanded="false" aria-controls="settings-content">
+              <span class="settings-symbol" aria-hidden="true">+</span>
+              <span><strong>Reminders &amp; install</strong><small>Push alerts and app setup</small></span>
+              <span class="chevron" aria-hidden="true"></span>
+            </button>
+            <div class="settings-content" id="settings-content" hidden>
+              <div class="settings-block">
+                <div class="settings-title-row">
+                  <div>
+                    <p class="eyebrow">NEVER MISS A STEP</p>
+                    <h3>Push reminders</h3>
+                  </div>
+                  <span class="status-pill" id="push-status">Off</span>
+                </div>
+                <p class="muted settings-description">Choose which open routine items this app should remind you about.</p>
+                <button class="primary-button" id="notifications-button" type="button">Turn on notifications</button>
+                <p class="settings-feedback" id="push-feedback" aria-live="polite"></p>
+                <div class="reminder-list" id="reminder-list"></div>
               </div>
-              <span class="status-pill" id="push-status">Off</span>
+              <div class="settings-divider" id="install-divider"></div>
+              <div class="settings-block install-block" id="install-block">
+                <div>
+                  <p class="eyebrow">KEEP IT CLOSE</p>
+                  <h3>Install the app</h3>
+                </div>
+                <p class="muted settings-description">Add Daily Care to your home screen for a fast, full-screen check-in.</p>
+                <button class="secondary-button" id="install-button" type="button" hidden>Install Daily Care</button>
+                <p class="ios-tip" id="install-feedback" hidden></p>
+              </div>
+              <p class="timezone-note">Reset time: <span id="reset-time-label">5:00 AM</span> · <span id="timezone-label">server timezone</span></p>
             </div>
-            <p class="muted settings-description">Choose which open routine items this app should remind you about.</p>
-            <button class="primary-button" id="notifications-button" type="button">Turn on notifications</button>
-            <p class="settings-feedback" id="push-feedback" aria-live="polite"></p>
-            <div class="reminder-list" id="reminder-list"></div>
-          </div>
-          <div class="settings-divider" id="install-divider"></div>
-          <div class="settings-block install-block" id="install-block">
-            <div>
-              <p class="eyebrow">KEEP IT CLOSE</p>
-              <h3>Install the app</h3>
-            </div>
-            <p class="muted settings-description">Add Daily Care to your home screen for a fast, full-screen check-in.</p>
-            <button class="secondary-button" id="install-button" type="button" hidden>Install Daily Care</button>
-            <p class="ios-tip" id="install-feedback" hidden></p>
-          </div>
-          <p class="timezone-note">Reset time: <span id="reset-time-label">5:00 AM</span> · <span id="timezone-label">server timezone</span></p>
-        </div>
-      </section>
+          </section>
 
-      <section class="admin-panel">
-        <button class="settings-toggle" id="admin-toggle" type="button" aria-expanded="false" aria-controls="admin-content">
+          <section class="admin-panel">
+            <button class="settings-toggle" id="admin-toggle" type="button" aria-expanded="false" aria-controls="admin-content">
+              <span class="settings-symbol" aria-hidden="true">+</span>
+              <span><strong>Admin panel</strong><small>Create categories and shape each routine</small></span>
+              <span class="chevron" aria-hidden="true"></span>
+            </button>
+            <div class="admin-content" id="admin-content" hidden>
+              <div class="admin-heading">
+                <div>
+                  <p class="eyebrow">MAKE IT YOURS</p>
+                  <h3>Categories &amp; routine items</h3>
+                </div>
+                <button class="small-button" id="new-category-button" type="button">New category</button>
+              </div>
+              <label class="admin-label" for="admin-category-select">Editing category</label>
+              <select class="admin-select" id="admin-category-select"></select>
+              <label class="admin-label" for="admin-category-name">Category name</label>
+              <input class="admin-input" id="admin-category-name" type="text" maxlength="80" placeholder="Creatine Reminder">
+              <div class="admin-routines-heading">
+                <label class="admin-label">Routine items</label>
+                <button class="text-button" id="add-routine-button" type="button">+ Add item</button>
+              </div>
+              <div class="admin-routine-list" id="admin-routine-list"></div>
+              <div class="admin-actions">
+                <button class="primary-button" id="save-category-button" type="button">Save category</button>
+                <button class="danger-button" id="delete-category-button" type="button">Delete category</button>
+              </div>
+              <p class="settings-feedback" id="admin-feedback" aria-live="polite"></p>
+              <p class="admin-note">Each category has its own daily check-in, history, reminder times, and completion state.</p>
+            </div>
+          </section>
+        </div>
+        <div class="setup-tools-footer" id="setup-tools-footer">
+          <button class="setup-hide-button" id="hide-setup-tools" type="button">Hide setup controls</button>
+        </div>
+        <button class="setup-tools-reveal" id="show-setup-tools" type="button" hidden>
           <span class="settings-symbol" aria-hidden="true">+</span>
-          <span><strong>Admin panel</strong><small>Create categories and shape each routine</small></span>
+          <span><strong>Show setup controls</strong><small>Reminders, install, and admin</small></span>
           <span class="chevron" aria-hidden="true"></span>
         </button>
-        <div class="admin-content" id="admin-content" hidden>
-          <div class="admin-heading">
-            <div>
-              <p class="eyebrow">MAKE IT YOURS</p>
-              <h3>Categories &amp; routine items</h3>
-            </div>
-            <button class="small-button" id="new-category-button" type="button">New category</button>
-          </div>
-          <label class="admin-label" for="admin-category-select">Editing category</label>
-          <select class="admin-select" id="admin-category-select"></select>
-          <label class="admin-label" for="admin-category-name">Category name</label>
-          <input class="admin-input" id="admin-category-name" type="text" maxlength="80" placeholder="Creatine Reminder">
-          <div class="admin-routines-heading">
-            <label class="admin-label">Routine items</label>
-            <button class="text-button" id="add-routine-button" type="button">+ Add item</button>
-          </div>
-          <div class="admin-routine-list" id="admin-routine-list"></div>
-          <div class="admin-actions">
-            <button class="primary-button" id="save-category-button" type="button">Save category</button>
-            <button class="danger-button" id="delete-category-button" type="button">Delete category</button>
-          </div>
-          <p class="settings-feedback" id="admin-feedback" aria-live="polite"></p>
-          <p class="admin-note">Each category has its own daily check-in, history, reminder times, and completion state.</p>
-        </div>
       </section>
 
       <footer class="app-footer">
@@ -146,6 +158,6 @@
       </footer>
     </main>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="/app.js?v=2" defer></script>
+    <script src="/app.js?v=3" defer></script>
   </body>
 </html>

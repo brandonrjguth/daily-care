@@ -598,6 +598,28 @@ function setExpandable(toggle, content, shell = $('.app-shell')) {
   if (expanded) shell.scrollTop = 0;
 }
 
+function updateSetupToolsVisibility(hidden) {
+  const content = $('#setup-tools-content');
+  const footer = $('#setup-tools-footer');
+  const reveal = $('#show-setup-tools');
+  if (!content || !footer || !reveal) return;
+  content.hidden = hidden;
+  footer.hidden = hidden;
+  reveal.hidden = !hidden;
+  if (hidden) {
+    $('#settings-toggle').setAttribute('aria-expanded', 'false');
+    $('#settings-content').hidden = true;
+    $('#admin-toggle').setAttribute('aria-expanded', 'false');
+    $('#admin-content').hidden = true;
+    document.documentElement.classList.remove('settings-open');
+  }
+}
+
+function setSetupToolsHidden(hidden) {
+  updateSetupToolsVisibility(hidden);
+  saveSettings({ ...readSettings(), setupToolsHidden: hidden });
+}
+
 function renderAdminEditor() {
   const select = $('#admin-category-select');
   const list = categories();
@@ -717,6 +739,8 @@ function wireUi() {
   });
   $('#settings-toggle').addEventListener('click', () => setExpandable($('#settings-toggle'), $('#settings-content')));
   $('#admin-toggle').addEventListener('click', () => setExpandable($('#admin-toggle'), $('#admin-content')));
+  $('#hide-setup-tools').addEventListener('click', () => setSetupToolsHidden(true));
+  $('#show-setup-tools').addEventListener('click', () => setSetupToolsHidden(false));
   $('#notifications-button').addEventListener('click', enablePush);
   $('#reminder-list').addEventListener('change', (event) => {
     if (event.target.matches('.reminder-enabled, .reminder-time, [data-extra-reminders]')) savePushSettings();
@@ -760,6 +784,7 @@ async function init() {
   activeCategoryId = new URLSearchParams(window.location.search).get('category') || readSettings().activeCategoryId || state.category?.id;
   render();
   wireUi();
+  updateSetupToolsVisibility(readSettings().setupToolsHidden === true);
   setupInstallPrompt();
   try {
     config = await api('/api/config');

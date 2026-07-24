@@ -1,13 +1,12 @@
-const CACHE_NAME = 'daily-care-shell-v5';
+const CACHE_NAME = 'daily-care-shell-v6';
 const SHELL = [
   '/',
   '/index.html',
-  '/styles.css?v=3',
-  '/app.js?v=2',
+  '/styles.css?v=4',
+  '/app.js?v=3',
   '/manifest.webmanifest',
   '/icons/appicon.png',
   '/icons/list-item.png',
-  '/icons/notification-badge-96.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -50,7 +49,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(self.registration.showNotification(data.title || 'Daily Care reminder', {
     body: data.body || 'A routine item is still waiting to be completed.',
     icon: '/icons/appicon.png',
-    badge: '/icons/notification-badge-96.png',
+    badge: '/icons/list-item.png',
     tag: data.routineId ? `daily-care-${data.categoryId || 'routine'}-${data.routineId}` : 'daily-care-reminder',
     renotify: true,
     data: { url: data.url || '/' },
