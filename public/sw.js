@@ -1,8 +1,8 @@
-const CACHE_NAME = 'daily-care-shell-v6';
+const CACHE_NAME = 'daily-care-shell-v7';
 const SHELL = [
   '/',
   '/index.html',
-  '/styles.css?v=4',
+  '/styles.css?v=5',
   '/app.js?v=3',
   '/manifest.webmanifest',
   '/icons/appicon.png',

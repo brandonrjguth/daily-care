@@ -357,16 +357,10 @@ h1 { margin: 0; font-size: 19px; letter-spacing: -.03em; }
 .toast { position: fixed; z-index: 5; right: 20px; bottom: max(20px, env(safe-area-inset-bottom)); left: 20px; max-width: 420px; margin: auto; padding: 12px 16px; border-radius: 12px; color: var(--white); background: var(--ink); box-shadow: var(--shadow); font-size: 12px; text-align: center; opacity: 0; pointer-events: none; transform: translateY(12px); transition: opacity .2s ease, transform .2s ease; }
 .toast.is-visible { opacity: 1; transform: translateY(0); }
 
-.setup-tools-footer { display: flex; justify-content: flex-end; padding: 5px 4px 0; }
-.setup-hide-button { padding: 5px 0; border: 0; color: var(--ink-soft); background: transparent; font-size: 10px; cursor: pointer; }
-.setup-hide-button:hover { color: var(--teal-dark); }
-.setup-hide-button:focus-visible { outline: 2px solid rgba(44, 133, 129, .3); outline-offset: 3px; border-radius: 4px; }
-.setup-tools-reveal { display: flex; width: 100%; align-items: center; gap: 12px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 14px; color: var(--ink); background: rgba(255, 254, 250, .63); text-align: left; cursor: pointer; }
-.setup-tools-reveal > span:nth-child(2) { display: grid; flex: 1; gap: 3px; }
-.setup-tools-reveal strong { font-family: 'Space Grotesk', sans-serif; font-size: 12px; }
-.setup-tools-reveal small { color: var(--ink-soft); font-size: 10px; }
-.setup-tools-reveal:hover { border-color: #b7cbc4; background: var(--white); }
-.setup-tools-reveal:focus-visible { outline: 3px solid rgba(44, 133, 129, .32); outline-offset: 3px; }
+.setup-tools-footer { display: flex; justify-content: center; padding: 5px 4px 0; }
+.setup-tools-toggle { padding: 5px 0; border: 0; color: var(--ink-soft); background: transparent; font-size: 10px; cursor: pointer; }
+.setup-tools-toggle:hover { color: var(--teal-dark); }
+.setup-tools-toggle:focus-visible { outline: 2px solid rgba(44, 133, 129, .3); outline-offset: 3px; border-radius: 4px; }
 
 .admin-panel { margin-top: 12px; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: rgba(255, 254, 250, .63); }
 .admin-content { padding: 0 16px 17px; }
