@@ -601,10 +601,11 @@ function setExpandable(toggle, content, shell = $('.app-shell')) {
 function updateSetupToolsVisibility(hidden) {
   const content = $('#setup-tools-content');
   const footer = $('#setup-tools-footer');
+  const hide = $('#hide-setup-tools');
   const reveal = $('#show-setup-tools');
-  if (!content || !footer || !reveal) return;
+  if (!content || !footer || !hide || !reveal) return;
   content.hidden = hidden;
-  footer.hidden = hidden;
+  hide.hidden = hidden;
   reveal.hidden = !hidden;
   if (hidden) {
     $('#settings-toggle').setAttribute('aria-expanded', 'false');
