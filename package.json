@@ -1,0 +1,17 @@
+{
+  "name": "daily-care",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A flexible PWA for keeping track of daily routines.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test server.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "Daily Care",
+  "short_name": "Daily Care",
+  "id": "/",
+  "description": "A flexible daily tracker for the routines that keep you well.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f3ec",
+  "theme_color": "#152c34",
+  "orientation": "portrait",
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://dailycare.1113112.xyz/manifest.webmanifest"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icons/cat7.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/cat7.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

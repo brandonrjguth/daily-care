@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#152c34">
+    <meta name="description" content="A flexible daily routine tracker for everything you care about.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/icons/cat7.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icons/cat7.png">
+    <link rel="stylesheet" href="/styles.css?v=1">
+    <title>Daily Care</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div class="brand-mark" aria-hidden="true">
+          <img src="/icons/cat7.png" alt="">
+        </div>
+        <div class="brand-copy">
+          <p class="eyebrow">DAILY CARE</p>
+          <div class="category-bar" id="category-bar" tabindex="0" aria-label="Switch routine category">
+            <button class="category-arrow" id="previous-category-button" type="button" aria-label="Show previous category"><span aria-hidden="true">&larr;</span></button>
+            <h1 id="category-title">Loading...</h1>
+            <button class="category-arrow" id="next-category-button" type="button" aria-label="Show next category"><span aria-hidden="true">&rarr;</span></button>
+          </div>
+          <p class="category-position" id="category-position">Swipe to switch routines</p>
+        </div>
+        <div class="live-dot" title="Syncs with the server"><span></span>Live</div>
+      </header>
+
+      <section class="hero-card" id="day-card" aria-labelledby="day-title" tabindex="0">
+        <div class="hero-copy">
+          <p class="eyebrow" id="day-kicker">TODAY'S CHECK-IN</p>
+          <h2 id="day-title">Loading your routine...</h2>
+          <p id="day-detail" class="muted">Your routine resets each day.</p>
+        </div>
+        <div class="progress-ring" aria-hidden="true">
+          <span id="progress-number">0</span>
+          <small>/ <span id="progress-total">0</span></small>
+        </div>
+        <div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div>
+        <div class="hero-footer">
+          <strong id="progress-label">0 routine items completed</strong>
+          <span id="next-routine">Checking your next step...</span>
+        </div>
+        <div class="day-nav" aria-label="Routine day navigation">
+          <button class="day-nav-button" id="previous-day-button" type="button" aria-label="Show previous day" disabled><span aria-hidden="true">&larr;</span></button>
+          <div class="day-nav-label">
+            <strong id="day-view-label">Today</strong>
+            <small id="day-swipe-hint">History starts after the next reset</small>
+          </div>
+          <button class="day-nav-button" id="current-day-button" type="button" aria-label="Return to today" disabled><span aria-hidden="true">&rarr;</span></button>
+        </div>
+      </section>
+
+      <section class="meal-section" aria-labelledby="routine-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">THE ROUTINE</p>
+            <h2 id="routine-title">Today</h2>
+          </div>
+          <span class="section-note" id="meal-action-note">Tap to complete</span>
+        </div>
+        <div class="meal-list" id="routine-list"></div>
+        <p class="tap-hint" id="tap-hint">Tap a completed item again if you need to undo it.</p>
+      </section>
+
+      <section class="encouragement" id="encouragement" aria-live="polite">
+        <span class="encouragement-line" aria-hidden="true"></span>
+        <p id="encouragement-text">A little consistency goes a long way.</p>
+        <span class="encouragement-line" aria-hidden="true"></span>
+      </section>
+
+      <section class="settings-panel">
+        <button class="settings-toggle" id="settings-toggle" type="button" aria-expanded="false" aria-controls="settings-content">
+          <span class="settings-symbol" aria-hidden="true">+</span>
+          <span><strong>Reminders &amp; install</strong><small>Push alerts and app setup</small></span>
+          <span class="chevron" aria-hidden="true"></span>
+        </button>
+        <div class="settings-content" id="settings-content" hidden>
+          <div class="settings-block">
+            <div class="settings-title-row">
+              <div>
+                <p class="eyebrow">NEVER MISS A STEP</p>
+                <h3>Push reminders</h3>
+              </div>
+              <span class="status-pill" id="push-status">Off</span>
+            </div>
+            <p class="muted settings-description">Choose which open routine items this app should remind you about.</p>
+            <button class="primary-button" id="notifications-button" type="button">Turn on notifications</button>
+            <p class="settings-feedback" id="push-feedback" aria-live="polite"></p>
+            <div class="reminder-list" id="reminder-list"></div>
+          </div>
+          <div class="settings-divider" id="install-divider"></div>
+          <div class="settings-block install-block" id="install-block">
+            <div>
+              <p class="eyebrow">KEEP IT CLOSE</p>
+              <h3>Install the app</h3>
+            </div>
+            <p class="muted settings-description">Add Daily Care to your home screen for a fast, full-screen check-in.</p>
+            <button class="secondary-button" id="install-button" type="button" hidden>Install Daily Care</button>
+            <p class="ios-tip" id="install-feedback" hidden></p>
+          </div>
+          <p class="timezone-note">Reset time: <span id="reset-time-label">5:00 AM</span> · <span id="timezone-label">server timezone</span></p>
+        </div>
+      </section>
+
+      <section class="admin-panel">
+        <button class="settings-toggle" id="admin-toggle" type="button" aria-expanded="false" aria-controls="admin-content">
+          <span class="settings-symbol" aria-hidden="true">+</span>
+          <span><strong>Admin panel</strong><small>Create categories and shape each routine</small></span>
+          <span class="chevron" aria-hidden="true"></span>
+        </button>
+        <div class="admin-content" id="admin-content" hidden>
+          <div class="admin-heading">
+            <div>
+              <p class="eyebrow">MAKE IT YOURS</p>
+              <h3>Categories &amp; routine items</h3>
+            </div>
+            <button class="small-button" id="new-category-button" type="button">New category</button>
+          </div>
+          <label class="admin-label" for="admin-category-select">Editing category</label>
+          <select class="admin-select" id="admin-category-select"></select>
+          <label class="admin-label" for="admin-category-name">Category name</label>
+          <input class="admin-input" id="admin-category-name" type="text" maxlength="80" placeholder="Creatine Reminder">
+          <div class="admin-routines-heading">
+            <label class="admin-label">Routine items</label>
+            <button class="text-button" id="add-routine-button" type="button">+ Add item</button>
+          </div>
+          <div class="admin-routine-list" id="admin-routine-list"></div>
+          <div class="admin-actions">
+            <button class="primary-button" id="save-category-button" type="button">Save category</button>
+            <button class="danger-button" id="delete-category-button" type="button">Delete category</button>
+          </div>
+          <p class="settings-feedback" id="admin-feedback" aria-live="polite"></p>
+          <p class="admin-note">Each category has its own daily check-in, history, reminder times, and completion state.</p>
+        </div>
+      </section>
+
+      <footer class="app-footer">
+        <p><span class="footer-cat" aria-hidden="true">*</span> Small steps for the things that keep you well</p>
+        <p class="icon-credit">Daily Care keeps your routines in one calm place.</p>
+      </footer>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js?v=1" defer></script>
+  </body>
+</html>
