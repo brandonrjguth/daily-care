@@ -271,15 +271,21 @@ h1 { margin: 0; font-size: 19px; letter-spacing: -.03em; }
   flex: 0 0 auto;
   place-items: center;
   border-radius: 15px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 23px;
-  font-weight: 600;
 }
 
-.routine-icon-sunrise { color: #c8753e; background: #ffead1; }
-.routine-icon-spark { color: #bf8a26; background: #fdf0d0; }
-.routine-icon-moon { color: #69689b; background: #e8e6f5; }
-.routine-icon-drop { color: #3d7f98; background: #dceef1; }
+.routine-icon::before {
+  width: 27px;
+  height: 27px;
+  background: var(--routine-color, var(--ink));
+  -webkit-mask: url('/icons/list-item.png') center / contain no-repeat;
+  mask: url('/icons/list-item.png') center / contain no-repeat;
+  content: '';
+}
+
+.routine-icon-sunrise { --routine-color: #c8753e; background: #ffead1; }
+.routine-icon-spark { --routine-color: #bf8a26; background: #fdf0d0; }
+.routine-icon-moon { --routine-color: #69689b; background: #e8e6f5; }
+.routine-icon-drop { --routine-color: #3d7f98; background: #dceef1; }
 
 .meal-copy { display: grid; gap: 4px; min-width: 0; }
 .meal-copy strong { font-family: 'Space Grotesk', sans-serif; font-size: 16px; letter-spacing: -.03em; }

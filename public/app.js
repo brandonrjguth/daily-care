@@ -1,6 +1,5 @@
 const localSettingsKey = 'daily-care-settings';
 const cachedStateKey = 'daily-care-state';
-const glyphs = { sunrise: '+', spark: '*', moon: 'o', drop: '~' };
 
 let config = {
   timezone: 'UTC',
@@ -226,9 +225,6 @@ function makeRoutineCard(routine, index, displayedItems) {
   const icon = document.createElement('span');
   icon.className = `routine-icon routine-icon-${routine.icon || ['sunrise', 'spark', 'moon', 'drop'][index % 4]}`;
   icon.setAttribute('aria-hidden', 'true');
-  const glyph = document.createElement('span');
-  glyph.textContent = glyphs[routine.icon] || String(index + 1);
-  icon.append(glyph);
   const copy = document.createElement('span');
   copy.className = 'meal-copy';
   const name = document.createElement('strong');
