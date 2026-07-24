@@ -1,6 +1,6 @@
 # Daily Care
 
-Daily Care is a mobile-first PWA for tracking flexible daily routines. It ships with Creatine Reminder and Medication Reminder categories, and the admin panel can create more categories with custom routine names and times. Each category has its own daily state and history. Reminder times and per-routine toggles belong to each app's push subscription rather than the shared check-in state.
+Daily Care is a mobile-first PWA for tracking flexible daily and weekly routines. It ships with Creatine Reminder and Medication Reminder categories, and the admin panel can create more categories with custom routine names, times, and recurrence. Each category has its own check-in state and history. Reminder times, per-routine toggles, and extra reminders belong to each app's push subscription rather than the shared check-in state.
 
 ## Local development
 

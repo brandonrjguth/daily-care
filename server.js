@@ -120,10 +120,13 @@ function normalizeItems(rawItems, routines) {
 function normalizeCategory(raw, fallback) {
   const routines = cleanRoutinesWithUniqueIds(raw && raw.routines && raw.routines.length ? raw.routines : fallback.routines);
   const id = slugify((raw && raw.id) || fallback.id);
+  const recurrence = cleanRecurrence(raw && raw.recurrence, fallback.recurrence);
   return {
     id,
     name: cleanName(raw && raw.name, fallback.name),
     routines,
+    recurrence,
+    weekday: cleanWeekday(raw && raw.weekday, fallback.weekday),
     dayKey: typeof (raw && raw.dayKey) === 'string' ? raw.dayKey : null,
     items: normalizeItems(raw && raw.items, routines),
     previousDay: raw && raw.previousDay && typeof raw.previousDay.dayKey === 'string'
@@ -143,6 +146,8 @@ function normalizeCategories(rawCategories) {
       id: `category-${index + 1}`,
       name: `Routine ${index + 1}`,
       routines: [{ id: 'routine-1', name: 'First routine', time: '09:00', note: '', icon: 'spark' }],
+      recurrence: 'daily',
+      weekday: 1,
     };
     const category = normalizeCategory(raw, fallback);
     let id = category.id;
@@ -173,6 +178,22 @@ function cleanSchedule(schedule, routines) {
 
 function cleanExtraReminders(value) {
   return value === true;
+}
+
+function cleanRecurrence(value, fallback = 'daily') {
+  if (value === 'weekly' || value === 'daily') return value;
+  return fallback === 'weekly' ? 'weekly' : 'daily';
+}
+
+function cleanWeekday(value, fallback = 1) {
+  if (value === null || value === undefined || value === '') return cleanWeekdayFallback(fallback);
+  const weekday = Number(value);
+  return Number.isInteger(weekday) && weekday >= 0 && weekday <= 6
+    ? weekday : cleanWeekdayFallback(fallback);
+}
+
+function cleanWeekdayFallback(value) {
+  return Number.isInteger(value) && value >= 0 && value <= 6 ? value : 1;
 }
 
 function cleanLastRemindedEntry(value) {
@@ -269,12 +290,36 @@ function previousDayKey(dayKey) {
   return date.toISOString().slice(0, 10);
 }
 
+function weeklyOccurrenceKey(dayKey, weekday) {
+  const date = new Date(`${dayKey}T00:00:00Z`);
+  const daysSinceOccurrence = (date.getUTCDay() - cleanWeekday(weekday) + 7) % 7;
+  date.setUTCDate(date.getUTCDate() - daysSinceOccurrence);
+  return date.toISOString().slice(0, 10);
+}
+
+function categoryCycleKey(category, now = new Date()) {
+  const operationalKey = operationalDayKey(zonedNow(now));
+  return category.recurrence === 'weekly'
+    ? weeklyOccurrenceKey(operationalKey, category.weekday)
+    : operationalKey;
+}
+
+function previousWeeklyOccurrenceKey(cycleKey) {
+  const date = new Date(`${cycleKey}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() - 7);
+  return date.toISOString().slice(0, 10);
+}
+
+function previousCycleKey(category, cycleKey) {
+  return category.recurrence === 'weekly' ? previousWeeklyOccurrenceKey(cycleKey) : previousDayKey(cycleKey);
+}
+
 async function ensureCurrentDay(now = new Date()) {
-  const dayKey = operationalDayKey(zonedNow(now));
   let changed = false;
   for (const category of store.categories) {
+    const dayKey = categoryCycleKey(category, now);
     if (category.dayKey === dayKey) continue;
-    category.previousDay = category.dayKey === previousDayKey(dayKey)
+    category.previousDay = category.dayKey === previousCycleKey(category, dayKey)
       ? { dayKey: category.dayKey, items: normalizeItems(category.items, category.routines) }
       : null;
     category.dayKey = dayKey;
@@ -285,7 +330,13 @@ async function ensureCurrentDay(now = new Date()) {
 }
 
 function categorySummary(category) {
-  return { id: category.id, name: category.name, routines: category.routines };
+  return {
+    id: category.id,
+    name: category.name,
+    routines: category.routines,
+    recurrence: category.recurrence,
+    weekday: category.weekday,
+  };
 }
 
 function publicState(category) {
@@ -351,10 +402,16 @@ function updateCategoryFromInput(category, body) {
   if (!routines.length) throw new Error('Add at least one routine item.');
   const oldItems = category.items;
   const oldPrevious = category.previousDay;
+  const recurrence = cleanRecurrence(body && body.recurrence, category.recurrence);
+  const weekday = cleanWeekday(body && body.weekday, category.weekday);
+  const cycleChanged = recurrence !== category.recurrence || (recurrence === 'weekly' && weekday !== category.weekday);
   category.name = name;
   category.routines = routines;
+  category.recurrence = recurrence;
+  category.weekday = weekday;
   category.items = normalizeItems(oldItems, routines);
-  category.previousDay = oldPrevious
+  category.dayKey = cycleChanged ? null : category.dayKey;
+  category.previousDay = !cycleChanged && oldPrevious
     ? { dayKey: oldPrevious.dayKey, items: normalizeItems(oldPrevious.items, routines) }
     : null;
 }
@@ -396,7 +453,17 @@ async function handleApi(request, response, url) {
     while (store.categories.some((category) => category.id === id)) id = `${baseId}-${suffix++}`;
     const routines = cleanRoutinesWithUniqueIds(body.routines);
     if (!routines.length) return sendJson(response, 400, { error: 'Add at least one routine item.' });
-    const category = { id, name, routines, dayKey: operationalDayKey(), items: emptyItems(routines), previousDay: null };
+    const category = {
+      id,
+      name,
+      routines,
+      recurrence: cleanRecurrence(body.recurrence),
+      weekday: cleanWeekday(body.weekday),
+      dayKey: null,
+      items: emptyItems(routines),
+      previousDay: null,
+    };
+    category.dayKey = categoryCycleKey(category);
     store.categories.push(category);
     await persist();
     return sendJson(response, 201, { category: categorySummary(category), categories: store.categories.map(categorySummary) });
@@ -408,6 +475,7 @@ async function handleApi(request, response, url) {
     if (!category) return sendJson(response, 404, { error: 'Category not found.' });
     const body = await readJson(request);
     try { updateCategoryFromInput(category, body); } catch (error) { return sendJson(response, 400, { error: error.message }); }
+    await ensureCurrentDay();
     await persist();
     return sendJson(response, 200, { category: categorySummary(category), categories: store.categories.map(categorySummary) });
   }
@@ -548,6 +616,7 @@ async function sendDueReminders() {
   const now = new Date();
   await ensureCurrentDay(now);
   const current = zonedNow(now);
+  const operationalKey = operationalDayKey(current);
   const currentMinutes = operationalMinute(current.hour, current.minute);
   let changed = false;
 
@@ -560,8 +629,9 @@ async function sendDueReminders() {
         const [hours, minutes] = (settings.schedule[routine.id] || routine.time).split(':').map(Number);
         if (currentMinutes < operationalMinute(hours, minutes)) continue;
         const record = settings.lastReminded[routine.id] || null;
-        const remindedToday = record && record.day === category.dayKey;
-        if (!remindedToday) {
+        const remindedThisCycle = record && record.day === category.dayKey;
+        if (!remindedThisCycle) {
+          if (category.recurrence === 'weekly' && operationalKey !== category.dayKey) continue;
           const status = await deliver(entry, reminderPayload(category, routine), `${category.name} ${routine.name} reminder`);
           if (status === 'sent') {
             const stamp = now.toISOString();
@@ -573,7 +643,7 @@ async function sendDueReminders() {
           }
           continue;
         }
-        if (settings.extraReminders && record && record.firstAt) {
+        if (settings.extraReminders && remindedThisCycle && record && record.firstAt) {
           const lastAt = record.at ? new Date(record.at) : null;
           if (!lastAt || now - lastAt >= NUDGE_INTERVAL_MS) {
             const firstAt = new Date(record.firstAt);
@@ -613,4 +683,15 @@ if (require.main === module) {
   });
 }
 
-module.exports = { cleanEnabled, cleanExtraReminders, cleanLastReminded, operationalDayKey, operationalMinute };
+module.exports = {
+  categoryCycleKey,
+  cleanEnabled,
+  cleanExtraReminders,
+  cleanLastReminded,
+  cleanRecurrence,
+  cleanWeekday,
+  operationalDayKey,
+  operationalMinute,
+  previousWeeklyOccurrenceKey,
+  weeklyOccurrenceKey,
+};

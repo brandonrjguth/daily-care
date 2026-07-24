@@ -375,6 +375,8 @@ h1 { margin: 0; font-size: 19px; letter-spacing: -.03em; }
 .admin-select { padding: 0 9px; }
 .admin-input { padding: 9px; }
 .admin-select:focus, .admin-input:focus { outline: 2px solid rgba(44, 133, 129, .3); outline-offset: 1px; }
+.admin-frequency-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.admin-frequency-grid .admin-label { margin-top: 16px; }
 .admin-routines-heading { margin-top: 18px; align-items: center; }
 .admin-routines-heading .admin-label { margin: 0; }
 .text-button { padding: 0; color: var(--teal-dark); background: transparent; font-size: 11px; font-weight: 700; }

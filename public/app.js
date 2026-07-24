@@ -12,6 +12,8 @@ let viewingPreviousDay = false;
 let activeCategoryId = null;
 let adminCategoryId = null;
 let adminDraftRoutines = [];
+let adminDraftRecurrence = 'daily';
+let adminDraftWeekday = 1;
 let pushSubscription = null;
 let pushServerRegistered = false;
 let syncedReminderEnabled = null;
@@ -95,6 +97,25 @@ function formatDay(value) {
   if (!value) return 'Loading your day...';
   const [year, month, day] = value.split('-').map(Number);
   return new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date(year, month - 1, day));
+}
+
+function recurrenceLabel(category) {
+  if (!category || category.recurrence !== 'weekly') return 'daily';
+  return `weekly on ${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][category.weekday] || 'Monday'}`;
+}
+
+function cycleWord(category) {
+  return category && category.recurrence === 'weekly' ? 'week' : 'day';
+}
+
+function cycleTitle(category, value) {
+  if (!category || category.recurrence !== 'weekly') return formatDay(value);
+  if (!value) return 'Loading your week...';
+  const date = new Date(`${value}T00:00:00Z`);
+  const end = new Date(date);
+  end.setUTCDate(end.getUTCDate() + 6);
+  const format = (dateValue) => new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dateValue);
+  return `${format(date)} - ${format(end)}`;
 }
 
 function isIosDevice() {
@@ -208,7 +229,7 @@ function renderCategoryNav() {
   }
   const index = Math.max(0, list.findIndex((candidate) => candidate.id === category.id));
   $('#category-title').textContent = category.name;
-  $('#category-position').textContent = list.length > 1 ? `${index + 1} of ${list.length} · Swipe to switch` : 'Your daily routine';
+  $('#category-position').textContent = list.length > 1 ? `${index + 1} of ${list.length} · Swipe to switch` : `Your ${recurrenceLabel(category)} routine`;
   $('#previous-category-button').disabled = list.length < 2;
   $('#next-category-button').disabled = list.length < 2;
   document.title = `${category.name} · Daily Care`;
@@ -294,11 +315,15 @@ function render() {
   const missing = routines.length - complete;
   const percent = routines.length ? `${Math.round((complete / routines.length) * 100)}%` : '0%';
   const nextRoutine = routines.find((routine) => !displayedItems[routine.id] || !displayedItems[routine.id].completedAt);
-  $('#day-title').textContent = formatDay(viewingPreviousDay ? state.previousDay?.dayKey : state.dayKey);
-  $('#day-kicker').textContent = viewingPreviousDay ? "YESTERDAY'S HISTORY" : "TODAY'S CHECK-IN";
+  $('#day-title').textContent = cycleTitle(category, viewingPreviousDay ? state.previousDay?.dayKey : state.dayKey);
+  $('#day-kicker').textContent = viewingPreviousDay
+    ? category.recurrence === 'weekly' ? "LAST WEEK'S HISTORY" : "YESTERDAY'S HISTORY"
+    : category.recurrence === 'weekly' ? "THIS WEEK'S CHECK-IN" : "TODAY'S CHECK-IN";
   $('#day-detail').textContent = viewingPreviousDay
     ? 'This routine history is read-only.'
-    : `Routine items reset every day at ${formatTime(`${String(config.resetHour).padStart(2, '0')}:00`)}.`;
+    : category.recurrence === 'weekly'
+      ? `Routine items reset every ${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][category.weekday] || 'Monday'} at ${formatTime(`${String(config.resetHour).padStart(2, '0')}:00`)}.`
+      : `Routine items reset every day at ${formatTime(`${String(config.resetHour).padStart(2, '0')}:00`)}.`;
   $('#progress-number').textContent = complete;
   $('#progress-total').textContent = routines.length;
   $('#progress-label').textContent = `${complete} of ${routines.length} routine item${complete === 1 ? '' : 's'} completed`;
@@ -307,17 +332,19 @@ function render() {
     ? missing === 0 ? 'Everything was covered' : `${missing} item${missing === 1 ? '' : 's'} not completed`
     : nextRoutine ? `Next: ${nextRoutine.name}` : 'All routines covered';
   $('#encouragement-text').textContent = viewingPreviousDay
-    ? complete === routines.length ? 'Everything was completed that day.' : `${complete} of ${routines.length} routine items were completed that day.`
-    : complete === routines.length ? 'All done. You showed up for yourself.' : complete === 0 ? 'A little consistency goes a long way.' : `${missing} routine item${missing === 1 ? '' : 's'} left for today.`;
+    ? complete === routines.length ? `Everything was completed that ${cycleWord(category)}.` : `${complete} of ${routines.length} routine items were completed that ${cycleWord(category)}.`
+    : complete === routines.length ? 'All done. You showed up for yourself.' : complete === 0 ? 'A little consistency goes a long way.' : `${missing} routine item${missing === 1 ? '' : 's'} left this ${cycleWord(category)}.`;
   $('#day-card').classList.toggle('is-history', viewingPreviousDay);
-  $('#day-card').setAttribute('aria-label', viewingPreviousDay ? 'Previous routine day history' : 'Current routine day');
-  $('#day-view-label').textContent = viewingPreviousDay ? 'Yesterday' : 'Today';
-  $('#day-swipe-hint').textContent = viewingPreviousDay ? 'Swipe left to return to today' : state.previousDay ? 'Swipe right for yesterday' : 'History starts after the next reset';
+  $('#day-card').setAttribute('aria-label', viewingPreviousDay ? `Previous routine ${cycleWord(category)} history` : `Current routine ${cycleWord(category)}`);
+  $('#day-view-label').textContent = viewingPreviousDay ? category.recurrence === 'weekly' ? 'Last week' : 'Yesterday' : category.recurrence === 'weekly' ? 'This week' : 'Today';
+  $('#day-swipe-hint').textContent = viewingPreviousDay
+    ? `Swipe left to return to ${category.recurrence === 'weekly' ? 'this week' : 'today'}`
+    : state.previousDay ? `Swipe right for ${category.recurrence === 'weekly' ? 'last week' : 'yesterday'}` : `History starts after the next ${category.recurrence === 'weekly' ? 'weekly reset' : 'daily reset'}`;
   $('#previous-day-button').disabled = viewingPreviousDay || !state.previousDay;
   $('#current-day-button').disabled = !viewingPreviousDay;
-  $('#routine-title').textContent = viewingPreviousDay ? "Yesterday's routine" : 'Today';
+  $('#routine-title').textContent = viewingPreviousDay ? category.recurrence === 'weekly' ? "Last week's routine" : "Yesterday's routine" : category.recurrence === 'weekly' ? 'This week' : 'Today';
   $('#meal-action-note').textContent = viewingPreviousDay ? 'Read only' : 'Tap to complete';
-  $('#tap-hint').textContent = viewingPreviousDay ? 'Swipe the day card left to return to today.' : 'Tap a completed item again if you need to undo it.';
+  $('#tap-hint').textContent = viewingPreviousDay ? `Swipe the ${cycleWord(category)} card left to return to the current cycle.` : 'Tap a completed item again if you need to undo it.';
   $('#routine-list').replaceChildren(...routines.map((routine, index) => makeRoutineCard(routine, index, displayedItems)));
   renderReminderList();
   applyCurrentCategorySettings();
@@ -536,7 +563,7 @@ async function registerServiceWorker() {
 
 function setDayView(previous) {
   if (previous && !state.previousDay) {
-    showToast('Previous-day history will appear after the next daily reset.');
+    showToast(`Previous ${currentCategory()?.recurrence === 'weekly' ? 'week' : 'day'} history will appear after the next reset.`);
     return;
   }
   if (viewingPreviousDay === previous) return;
@@ -637,6 +664,11 @@ function renderAdminEditor() {
   if (category && adminCategoryId === category.id) {
     $('#admin-category-name').value = category.name;
     adminDraftRoutines = category.routines.map((routine) => ({ ...routine }));
+    adminDraftRecurrence = category.recurrence || 'daily';
+    adminDraftWeekday = Number.isInteger(category.weekday) ? category.weekday : 1;
+    $('#admin-recurrence').value = adminDraftRecurrence;
+    $('#admin-weekday').value = String(adminDraftWeekday);
+    $('#admin-weekday-field').hidden = adminDraftRecurrence !== 'weekly';
   }
   $('#delete-category-button').disabled = list.length <= 1 || !adminCategoryId;
   renderAdminRoutineRows();
@@ -682,8 +714,13 @@ function renderAdminRoutineRows() {
 function startNewCategory() {
   adminCategoryId = null;
   adminDraftRoutines = [{ id: `new-${Date.now()}`, name: 'Morning', time: '08:00', note: '', icon: 'sunrise' }];
+  adminDraftRecurrence = 'daily';
+  adminDraftWeekday = 1;
   $('#admin-category-name').value = '';
   $('#admin-category-select').value = '';
+  $('#admin-recurrence').value = adminDraftRecurrence;
+  $('#admin-weekday').value = String(adminDraftWeekday);
+  $('#admin-weekday-field').hidden = true;
   $('#delete-category-button').disabled = true;
   renderAdminRoutineRows();
   const toggle = $('#admin-toggle');
@@ -700,7 +737,10 @@ async function saveCategory() {
   $('#admin-feedback').textContent = 'Saving category...';
   try {
     const endpoint = adminCategoryId ? `/api/admin/categories/${encodeURIComponent(adminCategoryId)}` : '/api/admin/categories';
-    const result = await api(endpoint, { method: adminCategoryId ? 'PUT' : 'POST', body: JSON.stringify({ name, routines }) });
+    const result = await api(endpoint, {
+      method: adminCategoryId ? 'PUT' : 'POST',
+      body: JSON.stringify({ name, routines, recurrence: $('#admin-recurrence').value, weekday: Number($('#admin-weekday').value) }),
+    });
     config.categories = result.categories;
     state.categories = result.categories;
     const savedId = result.category?.id || adminCategoryId;
@@ -751,6 +791,11 @@ function wireUi() {
     renderAdminEditor();
   });
   $('#admin-category-name').addEventListener('input', () => { $('#admin-feedback').textContent = ''; });
+  $('#admin-recurrence').addEventListener('change', (event) => {
+    adminDraftRecurrence = event.target.value;
+    $('#admin-weekday-field').hidden = adminDraftRecurrence !== 'weekly';
+  });
+  $('#admin-weekday').addEventListener('change', (event) => { adminDraftWeekday = Number(event.target.value); });
   $('#admin-routine-list').addEventListener('input', (event) => {
     const row = event.target.closest('.admin-routine-row');
     if (!row || !event.target.dataset.field) return;

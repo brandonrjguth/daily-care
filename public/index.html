@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#152c34">
-    <meta name="description" content="A flexible daily routine tracker for everything you care about.">
+    <meta name="description" content="A flexible routine tracker for everything you care about.">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="/manifest.webmanifest">
@@ -128,6 +128,27 @@
               <select class="admin-select" id="admin-category-select"></select>
               <label class="admin-label" for="admin-category-name">Category name</label>
               <input class="admin-input" id="admin-category-name" type="text" maxlength="80" placeholder="Creatine Reminder">
+              <div class="admin-frequency-grid">
+                <div>
+                  <label class="admin-label" for="admin-recurrence">Repeats</label>
+                  <select class="admin-select" id="admin-recurrence">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+                </div>
+                <div id="admin-weekday-field" hidden>
+                  <label class="admin-label" for="admin-weekday">Weekly on</label>
+                  <select class="admin-select" id="admin-weekday">
+                    <option value="0">Sunday</option>
+                    <option value="1">Monday</option>
+                    <option value="2">Tuesday</option>
+                    <option value="3">Wednesday</option>
+                    <option value="4">Thursday</option>
+                    <option value="5">Friday</option>
+                    <option value="6">Saturday</option>
+                  </select>
+                </div>
+              </div>
               <div class="admin-routines-heading">
                 <label class="admin-label">Routine items</label>
                 <button class="text-button" id="add-routine-button" type="button">+ Add item</button>
@@ -138,7 +159,7 @@
                 <button class="danger-button" id="delete-category-button" type="button">Delete category</button>
               </div>
               <p class="settings-feedback" id="admin-feedback" aria-live="polite"></p>
-              <p class="admin-note">Each category has its own daily check-in, history, reminder times, and completion state.</p>
+              <p class="admin-note">Each category has its own check-in cycle, history, reminder times, and completion state. Weekly categories reset on the selected weekday.</p>
             </div>
           </section>
         </div>
@@ -154,6 +175,6 @@
       </footer>
     </main>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="/app.js?v=4" defer></script>
+    <script src="/app.js?v=5" defer></script>
   </body>
 </html>

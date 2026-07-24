@@ -3,7 +3,18 @@ const assert = require('node:assert/strict');
 
 process.env.RESET_HOUR = '5';
 
-const { cleanEnabled, cleanExtraReminders, cleanLastReminded, operationalDayKey, operationalMinute } = require('./server');
+const {
+  categoryCycleKey,
+  cleanEnabled,
+  cleanExtraReminders,
+  cleanLastReminded,
+  cleanRecurrence,
+  cleanWeekday,
+  operationalDayKey,
+  operationalMinute,
+  previousWeeklyOccurrenceKey,
+  weeklyOccurrenceKey,
+} = require('./server');
 const routines = [{ id: 'morning' }, { id: 'before-bed' }, { id: 'as-needed' }];
 
 test('routine day changes at 5 AM rather than midnight', () => {
@@ -35,6 +46,24 @@ test('extra reminders toggle only accepts an explicit boolean', () => {
   assert.equal(cleanExtraReminders(undefined), false);
   assert.equal(cleanExtraReminders('true'), false);
   assert.equal(cleanExtraReminders(1), false);
+});
+
+test('weekly recurrence keeps the selected weekday and falls back safely', () => {
+  assert.equal(cleanRecurrence('weekly'), 'weekly');
+  assert.equal(cleanRecurrence('monthly'), 'daily');
+  assert.equal(cleanRecurrence(undefined, 'weekly'), 'weekly');
+  assert.equal(cleanWeekday(0), 0);
+  assert.equal(cleanWeekday(6), 6);
+  assert.equal(cleanWeekday(7), 1);
+  assert.equal(cleanWeekday('Friday'), 1);
+});
+
+test('weekly cycle keys start on the configured weekday', () => {
+  assert.equal(weeklyOccurrenceKey('2026-07-24', 1), '2026-07-20');
+  assert.equal(weeklyOccurrenceKey('2026-07-20', 1), '2026-07-20');
+  assert.equal(weeklyOccurrenceKey('2026-07-19', 0), '2026-07-19');
+  assert.equal(previousWeeklyOccurrenceKey('2026-07-20'), '2026-07-13');
+  assert.equal(categoryCycleKey({ recurrence: 'weekly', weekday: 1 }, new Date('2026-07-24T12:00:00Z')), '2026-07-20');
 });
 
 test('last-reminded values are limited to the category routines', () => {
