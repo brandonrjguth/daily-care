@@ -17,13 +17,13 @@
   ],
   "icons": [
     {
-      "src": "/icons/cat7.png",
+      "src": "/icons/appicon.png",
       "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/cat7.png",
+      "src": "/icons/appicon.png",
       "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any maskable"

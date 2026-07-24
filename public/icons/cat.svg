@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title">
-  <title>Daily Care</title>
-  <rect width="192" height="192" rx="48" fill="#152c34"/>
-  <path d="M48 82 48 49l29 17c7-3 13-4 19-4s12 1 19 4l29-17v33c7 9 11 20 11 32 0 31-26 55-59 55S37 145 37 114c0-12 4-23 11-32Z" fill="#cfe8d9"/>
-  <circle cx="72" cy="108" r="7" fill="#152c34"/>
-  <circle cx="120" cy="108" r="7" fill="#152c34"/>
-  <path d="M88 124c5 6 11 6 16 0M96 123v8" fill="none" stroke="#152c34" stroke-linecap="round" stroke-width="5"/>
-</svg>
